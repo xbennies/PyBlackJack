@@ -7,9 +7,15 @@
 # cannot go over 21 points.
 # one of dealers card is shown, other is secret. after hitting is done, if dealer point is under 16, required to hit, 17 or over required to stay.
 # player with 21 points/highest score without going over 21 wins.
+#
+# TO-DO:
+# - Add saving system
+# - Add text-based GUI 
+# - Make graphical GUI (in the future)
 
 import random
 import sys
+import csv
 
 money = 100
 bet = 0
@@ -21,6 +27,9 @@ carddb = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "Queen", "King", "Jack", "Ace"]
 cardtypedb = ["♠", "♥"]
 dealeracechoice = [1, 11]
 
+dealerdeck = []
+deck = []
+
 name = input("Enter your name: ")
 
 def intro():
@@ -30,11 +39,15 @@ def intro():
     global dealerpts
     global pts
     global starterdeck
+    global dealerdeck
+    global deck
 
     bet = 0
     pts = 0
     dealerpts = 0
     starterdeck = 0
+    dealerdeck = []
+    deck = []
     
     if money == 0:
         print("\nGame over. You're out of money!")
@@ -53,14 +66,13 @@ def dealer():
     global carddb
     global cardtypedb
     global starterdeck
+    global dealerdeck
+    global deck
     if starterdeck == 0:
         for x in range(0,2):
             cardselect = random.choice(carddb)
             cardtypeselect = random.choice(cardtypedb)
-            if x == 1:
-                print("Dealer Card 2: Unknown.")
-            else:
-                print("\nDealer Card 1: " + str(cardselect) + " of " + str(cardtypeselect))
+            dealerdeck.append(str(cardselect) + " of " + str(cardtypeselect))
             if cardselect == "Queen" or cardselect == "King" or cardselect == "Jack":
                 dealerpts += 10
             elif cardselect == "Ace":
@@ -77,6 +89,7 @@ def dealer():
         elif dealerpts <= 16:
             cardselect = random.choice(carddb)
             cardtypeselect = random.choice(cardtypedb)
+            dealerdeck.append(str(cardselect) + " of " + str(cardtypeselect))
             print("Dealer has picked out a new card!")
             if cardselect == "Queen" or cardselect == "King" or cardselect == "Jack":
                 dealerpts += 10
@@ -95,14 +108,13 @@ def player():
     global carddb
     global cardtypedb
     global starterdeck
+    global deck
+    global dealerdeck
     if starterdeck == 0:
         for x in range(0,2):
             cardselect = random.choice(carddb)
             cardtypeselect = random.choice(cardtypedb)
-            if x == 1:
-                print("Card 2: " + str(cardselect) + " of " + str(cardtypeselect))
-            else:
-                print("\nCard 1: " + str(cardselect) + " of " + str(cardtypeselect))
+            deck.append(str(cardselect) + " of " + str(cardtypeselect))
             if cardselect == "Queen" or cardselect == "King" or cardselect == "Jack":
                 pts += 10
             elif cardselect == "Ace":
@@ -117,7 +129,6 @@ def player():
             else:
                 pts += cardselect
             starterdeck = 1
-    print("Your score: " + str(pts))
     if pts > 21:
         print("Bust!")
         money -= bet
@@ -125,10 +136,20 @@ def player():
     if pts == 21:
         endgame()
     else:
-        decision = input("\nDo you wish to hit or stand?\nH - Hit\nS - Stand\n")
+        print("\nDealer's Deck:")
+        for x in range(0, len(dealerdeck) + 1):
+            if x == 1:
+                print("???")
+            else:
+                print(dealerdeck[x])
+        print("\nYour Deck:")
+        for x in range(0, len(deck)):
+            print(deck[x])
+        decision = input("\nYour Points: " + str(pts) + "\nDo you wish to hit or stand?\nH - Hit\nS - Stand\n")
         if decision.upper() == "H":
             cardselect = random.choice(carddb)
             cardtypeselect = random.choice(cardtypedb)
+            deck.append(str(cardselect) + " of " + str(cardtypeselect))
             print("\nCard: " + str(cardselect) + " of " + str(cardtypeselect))
             if cardselect == "Queen" or cardselect == "King" or cardselect == "Jack":
                 pts += 10
@@ -152,6 +173,8 @@ def endgame():
     global bet
     global dealerpts
     global pts
+    global deck
+    global dealerdeck
     if dealerpts > pts:
         print("Dealer wins!\n")
         money -= bet
@@ -163,6 +186,12 @@ def endgame():
     if dealerpts == pts:
         print("Draw!\n")
         intro()
+    print("\nDealer's Deck:")
+    for x in range(0, len(dealerdeck)):
+        print(dealerdeck[x])
+    print("\nYour Deck:")
+    for x in range(0, len(deck)):
+        print(deck[x])
 
 
 if money != 0:
